@@ -54,17 +54,31 @@ class musicListTableViewController: UITableViewController {
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "songCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "songCell", for: indexPath) as! SongTableViewCell
 
         let song = songs[indexPath.row]
-        cell.textLabel?.text = song.trackName
-        cell.detailTextLabel?.text = song.trackPrice?.description
+        cell.songLabel.text = song.trackName
+        cell.songImageView.image = nil
+        URLSession.shared.dataTask(with: song.artworkUrl100) { (data, response, error) in
+            if let data = data {
+                DispatchQueue.main.async {
+                    cell.songImageView.image = UIImage(data: data)
+                }
+            }
+        }.resume()
         // Configure the cell...
 
         return cell
     }
     
 
+    @IBSegueAction func showSongDetail(_ coder: NSCoder) -> SongDetailViewController? {
+        let controller = SongDetailViewController(coder: coder)
+        if let row = tableView.indexPathForSelectedRow?.row {
+            controller?.song = songs[row]
+        }
+        return controller
+    }
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
