@@ -6,12 +6,16 @@
 //
 
 import UIKit
+import AVFoundation
 
 class SongDetailViewController: UIViewController {
     
     var song: Song!
+    var player: AVPlayer?
+    var isPlay = false
 
     @IBOutlet weak var songImageView: UIImageView!
+    @IBOutlet weak var playButton: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -26,7 +30,27 @@ class SongDetailViewController: UIViewController {
         }.resume()
     }
     
-
+    
+    @IBAction func playSong(_ sender: Any) {
+        if isPlay == false {
+            isPlay = true
+            playButton.setImage(UIImage(systemName: "stop.fill"), for: .normal)
+            player = AVPlayer(url: song.previewUrl)
+            player?.play()
+            
+            NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil, queue: .main) { (_) in
+               print("finish, next song")
+                self.isPlay = false
+                self.playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+            }
+            
+        } else {
+            isPlay = false
+            playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+            player?.pause()
+        }
+    }
+    
     /*
     // MARK: - Navigation
 
